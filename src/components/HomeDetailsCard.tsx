@@ -45,7 +45,7 @@ const HomeDetailsCard: React.FC<Props> = ({ expense }) => {
     <div className="max-w-full flex ">
       <div className="flex space-x-4 m-2">
         <div className="p-3 rounded-xl bg-red-100 ">
-          <span className="text-purple-700 text-center text-2xl">{icon}</span>
+          <span className="text-blue-700 text-center text-2xl">{icon}</span>
         </div>
         <div className="flex-col space-x-0.5">
           <p className="text-base font-medium">{category}</p>

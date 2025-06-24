@@ -12,7 +12,11 @@ type Expense = {
   category: string;
   amount: string;
   notes: string;
+  paymentMethod: string;
   userId: string;
+  updatedAt: {};
+  createdAt: {};
+  __v: number;
 };
 
 const parseDate = (dateStr: string): string => {
@@ -42,7 +46,39 @@ const Transaction: React.FC = () => {
   const getDaysInMonth = (month: number, year: number) => {
     return new Date(year, month, 0).getDate();
   };
-  const [data, setData] = useState<Expense[]>([]);
+
+  const [data, setData] = useState<Expense[]>([
+    {
+      date: "2025-06-19",
+      amount: "12000",
+      category: "Family",
+      notes: "21212",
+      paymentMethod: "online",
+      userId: "1",
+      createdAt: {
+        $date: "2025-06-02T16:05:04.355Z",
+      },
+      updatedAt: {
+        $date: "2025-06-02T16:05:04.355Z",
+      },
+      __v: 0,
+    },
+    {
+      date: "2025-06-02",
+      amount: "12000",
+      category: "Family",
+      notes: "21212",
+      paymentMethod: "online",
+      userId: "1",
+      createdAt: {
+        $date: "2025-06-02T16:05:04.355Z",
+      },
+      updatedAt: {
+        $date: "2025-06-02T16:05:04.355Z",
+      },
+      __v: 0,
+    },
+  ]);
   const [totalExpense, setTotalExpense] = useState(0);
   console.log(totalExpense);
 
@@ -98,8 +134,47 @@ const Transaction: React.FC = () => {
       setTotalExpense(total);
     }
   }, [fetchedExpense]);
-  const expensesToRender = isFiltterd ? data : filteredData;
+  const expensesToRender = isFiltterd ? filteredData : data;
   const noData = !expensesToRender || expensesToRender.length === 0;
+  // const date = new Date();
+  // const todayExDate = date.getDate();
+  // const todayDate = `${date.getFullYear()}-${
+  //   date.getMonth() + 1
+  // }-${date.getDate()}`;
+  // console.log(todayDate);
+  const currentDate = new Date().toISOString().split("T")[0];
+
+  const toatalToday = data.filter((item) => item.date === currentDate);
+  const todayExpense = toatalToday.reduce((acc: number, curr: Expense) => {
+    const amount = parseFloat(curr.amount);
+    return isNaN(amount) ? acc : acc + amount;
+  }, 0);
+  const currentMonth = new Date().getMonth();
+  const filteredCurrentMonth = data?.filter(
+    (item) => new Date(item.date).getMonth() === currentMonth
+  );
+  const totalCurrentMonthSpend = filteredCurrentMonth?.reduce(
+    (acc, current) => acc + parseInt(current.amount),
+    0
+  );
+  const startOfWeek = new Date();
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+
+  if (startOfWeek.getDay() === 0) {
+    startOfWeek.setHours(0, 0, 0, 0);
+  } else {
+    startOfWeek.setDate(startOfWeek.getDate() - 7);
+    startOfWeek.setHours(0, 0, 0, 0);
+  }
+
+  const filteredCurrentWeek = data?.filter(
+    (item) => new Date(item.date) >= startOfWeek
+  );
+
+  const totalCurrentWeekSpend = filteredCurrentWeek?.reduce(
+    (acc, current) => acc + parseInt(current.amount),
+    0
+  );
   return (
     <>
       <div className="flex flex-col overflow-hidden ">
@@ -124,17 +199,17 @@ const Transaction: React.FC = () => {
             <div className="mt-5 flex flex-col sm:flex-col md:flex-col lg:flex-row gap-7">
               <Card
                 name={"Today"}
-                amount={"2,850.00"}
+                amount={todayExpense.toString() || "0"}
                 nav={<MdOutlineToday />}
               />
               <Card
                 name={"This Week"}
-                amount={"2,850.00"}
+                amount={totalCurrentWeekSpend.toString() || "0"}
                 nav={<BsCalendar2Week />}
               />
               <Card
                 name={"Total This Month"}
-                amount={"2,850.00"}
+                amount={totalCurrentMonthSpend.toString() || "0"}
                 nav={<MdOutlineCalendarMonth />}
               />
             </div>
