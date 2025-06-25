@@ -5,7 +5,7 @@ import { BsGraphUpArrow, BsGraphDownArrow } from "react-icons/bs";
 import HomeDetailsCard from "../components/HomeDetailsCard";
 import Histroy from "../components/History";
 import { useQuery } from "@tanstack/react-query";
-import { ExpenseDetails as Expense } from "../types/interface";
+import { ExpenseDetails as Expense, TotalExpense } from "../types/interface";
 const parseDate = (dateStr: string): string => {
   const iso = new Date(dateStr);
   if (!isNaN(iso.getTime())) return iso.toString();
@@ -34,7 +34,19 @@ const Home: React.FC = () => {
 
     return json;
   }
+  async function totalExpenseFetch(): Promise<TotalExpense[]> {
+    const response = await fetch(import.meta.env.VITE_API_URL + "/total", {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const json = await response.json();
+    console.log(json);
 
+    return json;
+  }
   const {
     data: fetchedExpense,
     //isLoading,
@@ -44,7 +56,11 @@ const Home: React.FC = () => {
     queryFn: fetchData,
     staleTime: 5000,
   });
-
+  const { data: total } = useQuery({
+    queryKey: ["total"],
+    queryFn: totalExpenseFetch,
+    staleTime: 100000,
+  });
   useEffect(() => {
     if (fetchedExpense) {
       setData(fetchedExpense); // Set the fetched data as an array
@@ -59,7 +75,11 @@ const Home: React.FC = () => {
       setTotalExpense(total);
     }
   }, [fetchedExpense]);
-
+  useEffect(() => {
+    if (total) {
+      console.log(total);
+    }
+  }, [total]);
   return (
     <>
       <div className="flex flex-col overflow-hidden">

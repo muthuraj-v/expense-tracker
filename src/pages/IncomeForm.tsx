@@ -19,12 +19,21 @@ const IncomeForm: React.FC = () => {
     e.preventDefault();
     try {
       axios
-        .post<Income>(import.meta.env.VITE_API_URL + "/icome/add", data, {
+        .post<Income>(import.meta.env.VITE_API_URL + "/income/add", data, {
           withCredentials: true,
         })
-        .then((data) =>
-          data.status === 200 ? alert("Income Added") : alert(data.data)
-        )
+        .then((data) => {
+          if (data.status === 201) {
+            setData({
+              date: "",
+              amount: "",
+              category: "",
+              paymentMethod: "",
+              notes: "",
+            });
+          }
+          data.status === 201 ? alert("Income Added") : alert(data.data);
+        })
         .catch((e) => alert(e));
     } catch (error) {
       alert(error);

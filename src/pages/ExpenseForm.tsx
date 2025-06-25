@@ -23,12 +23,23 @@ const ExpenseForm: React.FC = () => {
 
     try {
       axios
-        .post<Expense>(import.meta.env.VITE_API_URL + "expense/add", data, {
+        .post<Expense>(import.meta.env.VITE_API_URL + "/expense/add", data, {
           withCredentials: true,
         })
-        .then((data) =>
-          data.status === 200 ? alert("Expense Added") : alert("failed process")
-        )
+        .then((data) => {
+          if (data.status === 200) {
+            setData({
+              date: "",
+              amount: "",
+              category: "",
+              paymentMethod: "",
+              notes: "",
+            });
+          }
+          data.status === 200
+            ? alert("Expense Added")
+            : alert("failed process");
+        })
         .catch((e) => alert(e));
       // const response = axios.post<Expense>(
       //   "http://localhost:2000/api/expense/add",

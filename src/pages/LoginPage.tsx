@@ -21,6 +21,7 @@ const LoginPage: React.FC = () => {
         const res = await axios.get("http://localhost:2000/api/user", {
           withCredentials: true,
         });
+        console.log(res);
 
         setUser(res.data.user);
         // console.log(res.data.user);

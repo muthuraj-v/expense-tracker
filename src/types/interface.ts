@@ -19,3 +19,11 @@ export interface Income {
   paymentMethod: string;
   notes: string;
 }
+
+export interface TotalExpense {
+  date: string;
+  amount: string;
+  userId: {};
+  totalIncome: string;
+  totalExpense: string;
+}
