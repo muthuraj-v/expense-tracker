@@ -67,7 +67,7 @@ const Home: React.FC = () => {
   const { data: total } = useQuery({
     queryKey: ["total"],
     queryFn: totalExpenseFetch,
-    staleTime: 100000,
+    staleTime: 5000,
   });
   const currentMonth = new Date().getMonth();
   useEffect(() => {

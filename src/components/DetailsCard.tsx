@@ -51,8 +51,8 @@ const DetailsCard: React.FC<Props> = ({ expense, onDelete, onEdit }) => {
   };
 
   return (
-    <div className="max-w-[600px] flex mt-2.5 bg-gray-50 rounded-lg shadow-sm p-3 animate-fade-up animate-once animate-ease-in-out animate-normal animate-fill-forwards">
-      <div className="flex items-center space-x-4 w-full">
+    <div className="max-w-[700px] flex flex-wrap mt-2.5 bg-gray-50 rounded-lg shadow-sm p-3 animate-fade-up animate-once animate-ease-in-out animate-normal animate-fill-forwards">
+      <div className="flex items-center space-x-4 w-full flex-wrap">
         <div className="w-12 h-12 p-2 rounded-md bg-gray-100 shadow-sm flex flex-col items-center justify-center">
           <span className="text-gray-800 text-xs font-semibold leading-tight text-center">
             {formatDate(date)}

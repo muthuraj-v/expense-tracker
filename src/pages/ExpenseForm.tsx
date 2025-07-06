@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Expense } from "../types/interface";
-
+import { useQueryClient } from "@tanstack/react-query";
 const ExpenseForm: React.FC = () => {
   const [data, setData] = useState<Expense>({
     date: "",
@@ -10,6 +10,7 @@ const ExpenseForm: React.FC = () => {
     paymentMethod: "",
     notes: "",
   });
+  const queryClient = useQueryClient();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -57,7 +58,10 @@ const ExpenseForm: React.FC = () => {
           data.status === 201
             ? alert("Expense Added")
             : alert("failed process");
+          queryClient.invalidateQueries({ queryKey: ["expense"] });
+          queryClient.invalidateQueries({ queryKey: ["total"] });
         })
+
         .catch((e) => {
           console.log(e.response.data.message);
           alert(e.response.data.message);

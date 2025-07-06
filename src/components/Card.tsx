@@ -8,7 +8,7 @@ type AppProp = {
 const Card: React.FC<AppProp> = ({ name, amount, nav }) => {
   return (
     <>
-      <div className="flex p-6 rounded-xl shadow-md">
+      <div className="flex p-6 rounded-xl shadow-md animate-fade animate-once animate-ease-out animate-normal animate-fill-forwards">
         <div className="flex items-center space-x-8">
           <div className="text-5xl">{nav}</div>
           <div className="m-2">

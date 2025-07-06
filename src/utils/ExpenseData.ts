@@ -14,10 +14,28 @@ export async function fetchData(): Promise<Expense[]> {
 }
 export const getUserInfo = async (): Promise<User> => {
   const response = await axios.get<UserApiResponse>(
-    "http://localhost:2000/api/user",
+    import.meta.env.VITE_API_URL + "/user",
     {
       withCredentials: true,
     }
   );
-  return response.data.user; // this is a User
+  return response.data.user;
+};
+
+export const logout = async () => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      throw new Error("Logout failed");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Logout error:", error);
+    throw error;
+  }
 };

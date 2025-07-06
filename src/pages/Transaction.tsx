@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Nav from "../components/Nav/Nav";
 import { MdOutlineCalendarMonth, MdOutlineToday } from "react-icons/md";
 import DetailsCard from "../components/DetailsCard";
@@ -9,6 +9,8 @@ import History from "../components/History";
 import { useNavigate } from "react-router-dom";
 import { ExpenseDetails } from "../types/interface";
 import PopUp from "../components/Popup";
+import ConfirmDialog from "../components/ConfirmDialog";
+import Filter from "../components/Filter";
 type Expense = {
   _id: string;
   date: string;
@@ -22,16 +24,22 @@ type Expense = {
   __v: number;
 };
 
-const parseDate = (dateStr: string): string => {
-  const iso = new Date(dateStr);
-  if (!isNaN(iso.getTime())) return iso.toString();
+// const parseDate = (dateStr: string): string => {
+//   const iso = new Date(dateStr);
+//   if (!isNaN(iso.getTime())) return iso.toString();
 
-  const [day, month, year] = dateStr.split("-");
-  const normalized = new Date(`${year}-${month}-${day}`);
-  return normalized.toString();
-};
+//   const [day, month, year] = dateStr.split("-");
+//   const normalized = new Date(`${year}-${month}-${day}`);
+//   return normalized.toString();
+// };
 
 const Transaction: React.FC = () => {
+  const [selectedExpense, setSelectedExpense] = useState<ExpenseDetails | null>(
+    null
+  );
+  const queryClient = useQueryClient();
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedDate, setSelectedDate] = useState("");
@@ -150,6 +158,7 @@ const Transaction: React.FC = () => {
   const handleDelete = async (expenseToDelete: ExpenseDetails) => {
     try {
       // Replace with your real API endpoint:
+
       const response = await fetch(
         import.meta.env.VITE_API_URL + `/expense/delete/${expenseToDelete._id}`,
         {
@@ -164,7 +173,8 @@ const Transaction: React.FC = () => {
       setData((prev) =>
         prev?.filter((expense) => expense._id !== expenseToDelete._id)
       );
-      alert("hello there!");
+      queryClient.invalidateQueries({ queryKey: ["expense"] });
+      queryClient.invalidateQueries({ queryKey: ["total"] });
     } catch (error) {
       console.error("Error deleting expense:", error);
       alert("Failed to delete expense. Please try again.");
@@ -238,6 +248,9 @@ const Transaction: React.FC = () => {
       );
 
       alert("Expense updated successfully!");
+      queryClient.invalidateQueries({ queryKey: ["expense"] });
+      queryClient.invalidateQueries({ queryKey: ["total"] });
+      setOpenEditPopUp(false);
     } catch (error) {
       console.error("Error updating expense:", error);
       alert("Failed to update expense. Please try again.");
@@ -246,6 +259,10 @@ const Transaction: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleUpdate(formData);
+  };
+  const handleDeleteClick = (expense: ExpenseDetails) => {
+    setSelectedExpense(expense);
+    setIsDialogOpen(true);
   };
   return (
     <>
@@ -287,126 +304,19 @@ const Transaction: React.FC = () => {
             </div>
             <div className="mt-6">
               <div className="p-2 ml-1">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:gap-6">
-                  <div className="flex flex-col text-sm w-[120px]">
-                    <label
-                      htmlFor="month"
-                      className="mb-1 text-gray-700 font-medium"
-                    >
-                      Filter by Month:
-                    </label>
-                    <select
-                      id="month"
-                      value={selectedMonth}
-                      onChange={(e) => {
-                        setSelectedMonth(Number(e.target.value));
-                        setSelectedDate("");
-                      }}
-                      className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      {Array.from({ length: 12 }, (_, i) => (
-                        <option key={i + 1} value={i + 1}>
-                          {new Date(0, i).toLocaleString("default", {
-                            month: "long",
-                          })}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="flex flex-col text-sm w-[120px]">
-                    <label
-                      htmlFor="year"
-                      className="mb-1 text-gray-700 font-medium"
-                    >
-                      Filter by Year:
-                    </label>
-                    <select
-                      id="year"
-                      value={selectedYear}
-                      onChange={(e) => {
-                        setSelectedYear(Number(e.target.value));
-                        setSelectedDate("");
-                      }}
-                      className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      {generateYears().map((year) => (
-                        <option key={year} value={year}>
-                          {year}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="flex flex-col text-sm w-[120px]">
-                    <label
-                      htmlFor="date"
-                      className="mb-1 text-gray-700 font-medium"
-                    >
-                      Filter by Date :
-                    </label>
-                    <select
-                      id="date"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">All Dates</option>
-                      {Array.from(
-                        { length: getDaysInMonth(selectedMonth, selectedYear) },
-                        (_, i) => (
-                          <option key={i + 1} value={i + 1}>
-                            {i + 1}
-                          </option>
-                        )
-                      )}
-                    </select>
-                  </div>
-                  <div className="flex flex-col text-sm w-[120px]">
-                    <label
-                      htmlFor="category"
-                      className="mb-1 text-gray-700 font-medium"
-                    >
-                      Category :
-                    </label>
-                    <select
-                      id="category"
-                      value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">All</option>
-                      <option value="Food">Food</option>
-                      <option value="Rent">Rent</option>
-                      <option value="Groceries">Groceries</option>
-                      <option value="Utilities">Utilities</option>
-                      <option value="Travel">Travel</option>
-                      <option value="Mobile">Mobile</option>
-                      <option value="Family">Family</option>
-                      <option value="Transfer">Transfer</option>
-                      <option value="Save">Saveings</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                  <div className="">
-                    <button
-                      type="button"
-                      className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-                      onClick={() => setIsFilttered(true)}
-                    >
-                      Filtter
-                    </button>
-                  </div>
-                  <div className="">
-                    <button
-                      type="button"
-                      className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-                      onClick={() => setIsFilttered(false)}
-                    >
-                      Reset
-                    </button>
-                  </div>
-                </div>
+                <Filter
+                  selectedMonth={selectedMonth}
+                  setSelectedMonth={setSelectedMonth}
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                  selectedDate={selectedDate}
+                  setSelectedDate={setSelectedDate}
+                  selectedCategory={selectedCategory}
+                  setSelectedCategory={setSelectedCategory}
+                  setIsFilttered={setIsFilttered}
+                  generateYears={generateYears}
+                  getDaysInMonth={getDaysInMonth}
+                />
               </div>
               <div className="p-5">
                 {noData ? (
@@ -418,7 +328,7 @@ const Transaction: React.FC = () => {
                     .map((expense, index) => (
                       <DetailsCard
                         key={index}
-                        onDelete={handleDelete}
+                        onDelete={handleDeleteClick}
                         onEdit={handleEdit}
                         expense={{ ...expense, date: parseDate(expense.date) }}
                       />
@@ -435,6 +345,15 @@ const Transaction: React.FC = () => {
         data={formData}
         handleChange={handleChange}
         handleSubmit={handleSubmit}
+      />
+      <ConfirmDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onConfirm={() => {
+          if (selectedExpense) handleDelete(selectedExpense);
+        }}
+        title="Delete Expense"
+        message="Are you sure you want to delete this expense?"
       />
     </>
   );

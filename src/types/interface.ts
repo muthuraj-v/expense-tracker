@@ -32,10 +32,10 @@ export interface User {
   _id: string;
   userName: string;
   email: string;
-  avatar?: string; // optional, since it's currently empty
+  avatar?: string;
   googleId: string;
-  createdAt: string; // ISO string
-  updatedAt: string; // ISO string
+  createdAt: string;
+  updatedAt: string;
   __v: number;
 }
 export interface UserApiResponse {

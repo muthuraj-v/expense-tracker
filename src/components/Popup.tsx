@@ -101,12 +101,15 @@ const PopUp: React.FC<PopUpProps> = ({
               <option value="" disabled>
                 Select Category
               </option>
-              <option value="Salary">Salary</option>
-              <option value="Freelance">Freelance</option>
-              <option value="Investments">Investments</option>
-              <option value="Gift">Gift</option>
-              <option value="Interest">Interest</option>
-              <option value="Refund">Refund</option>
+              <option value="Food">Food</option>
+              <option value="Rent">Rent</option>
+              <option value="Groceries">Groceries</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Travel">Travel</option>
+              <option value="Mobile">Mobile</option>
+              <option value="Family">Family</option>
+              <option value="Transfer">Transfer</option>
+              <option value="Save">Saveings</option>
               <option value="Other">Other</option>
             </select>
           </div>

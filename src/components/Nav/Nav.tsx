@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import userimag from "../../assets/user.png";
 import { IoIosHome } from "react-icons/io";
 import { RiFileList3Fill } from "react-icons/ri";
@@ -9,7 +9,7 @@ import { MdBarChart } from "react-icons/md";
 import Burger from "./Burger";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FaWallet } from "react-icons/fa";
-import { getUserInfo } from "../../utils/ExpenseData";
+import { getUserInfo, logout } from "../../utils/ExpenseData";
 import { useQuery } from "@tanstack/react-query";
 import { User } from "../../types/interface";
 
@@ -18,17 +18,17 @@ const Nav: React.FC = () => {
   const toggleHamburger = () => {
     setHamburgerIsOpen(!hamburgerIsOpen);
   };
-  const [userName, setUserName] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const Location = useLocation();
   const fetchData = async (): Promise<User> => {
     try {
       const user = await getUserInfo();
       console.log("User info:", user);
-      return user; // ✅ This is required
+      return user;
     } catch (error) {
       console.error("Error fetching user:", error);
-      throw error; // ✅ Re-throw so React Query knows it failed
+      throw error;
     }
   };
 
@@ -37,18 +37,19 @@ const Nav: React.FC = () => {
     queryFn: fetchData,
     staleTime: Infinity,
   });
-  useEffect(() => {
-    if (userData) {
-      setUserName(userData.userName.charAt(0).toLocaleUpperCase());
-      setUserName(userData?.avatar || "0");
-    }
+
+  const userAvatar = useMemo(() => {
+    const avatar = userData?.avatar;
+    return avatar && avatar.trim() !== "" ? avatar : userimag;
   }, [userData]);
+  console.log(userAvatar);
+
   const isTrue: boolean =
     Location.pathname === "/transaction" ||
     Location.pathname === "/add_transaction";
 
   const navItems = [
-    { id: 1, text: "Home", icon: <IoIosHome />, link: "/" },
+    { id: 1, text: "Home", icon: <IoIosHome />, link: "/main" },
 
     {
       id: 2,
@@ -59,16 +60,29 @@ const Nav: React.FC = () => {
     { id: 3, text: "Reports", icon: <MdBarChart />, link: "/reports" },
     // { id: 4, text: "Settings", icon: <IoSettings />, link: "/" },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      // Clear any local state or storage if needed
+      // localStorage.clear();
+
+      navigate("/login"); // Redirect to login page
+    } catch (err) {
+      alert("Failed to logout");
+    }
+  };
+
   return (
     <>
-      <div className="w-lvw h-[66px] flex   gap-9 items-center px-8 bg-white shadow-md border-b border-gray-100 z-50  ">
+      <div className="w-lvw h-[66px] flex   gap-9 items-center px-8 bg-white shadow-md border-b border-gray-100 z-10000  ">
         <div
           className="block sm:block md:block lg:hidden cursor-pointer ml-0.5"
           onClick={toggleHamburger}
         >
           <Burger isOpen={hamburgerIsOpen} />
         </div>
-        <div className="hidden sm:hidden md:block  cursor-pointer">
+        <div className="hidden sm:hidden md:hidden lg:block  cursor-pointer">
           {/* <img src={Logo} alt="Logo" className="w-[49px] h-[45px]" /> */}
           <h2 className="flex items-center text-[22px] text-[#222] space-x-2 ">
             <FaWallet className="text-purple-600 text-3xl" />
@@ -121,6 +135,21 @@ const Nav: React.FC = () => {
                 </NavLink>
               </li>
             ))}
+            <li>
+              <div
+                onClick={handleLogout}
+                className={`block ${
+                  hamburgerIsOpen
+                    ? "pt-5 pb-5 text-center w-full border-b border-[#ccc] text-white"
+                    : "text-[18px] hidden sm:hidden md:hidden lg:hidden"
+                }`}
+              >
+                <span className="text-[18px] hidden sm:hidden md:hidden lg:block">
+                  {"ss"}
+                </span>
+                {"Logout"}
+              </div>
+            </li>
           </ul>
         </div>
         <div className="hidden sm:hidden md:hidden lg:flex items-center ml-auto space-x-4">
@@ -141,8 +170,9 @@ const Nav: React.FC = () => {
               className="rounded-full"
             /> */}
             <img
-              src={userName === "" ? userimag : userName}
-              alt="hello there"
+              src={userAvatar || userimag}
+              alt={userData?.userName || "hello there"}
+              title={userData?.userName || "hello there"}
               className="rounded-full"
             />
           </div>

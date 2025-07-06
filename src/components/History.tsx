@@ -3,7 +3,7 @@ import { FaHome } from "react-icons/fa";
 import { RiFileList3Fill } from "react-icons/ri";
 import { MdBarChart, MdOutlineAddCard } from "react-icons/md";
 import { NavLink, useLocation } from "react-router-dom";
-
+import { ImProfile } from "react-icons/im";
 const History: React.FC = () => {
   const location = useLocation();
   const pathname = location.pathname;
@@ -16,7 +16,7 @@ const History: React.FC = () => {
           <span className="text-gray-500">Home</span>
         ) : (
           <NavLink
-            to="/"
+            to="/main"
             className="text-blue-600 hover:text-blue-300 cursor-pointer"
           >
             Home
@@ -61,6 +61,13 @@ const History: React.FC = () => {
             <span>/</span>
             <MdBarChart className="text-gray-500" />
             <span className="text-gray-500">Reports</span>
+          </>
+        )}
+        {pathname === "/profile" && (
+          <>
+            <span>/</span>
+            <ImProfile className="text-gray-500" />
+            <span className="text-gray-500">Profile</span>
           </>
         )}
       </div>

@@ -1,49 +1,90 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import Nav from "../components/Nav/Nav";
 import BarChart from "../components/BarChart";
 import HighExpenseChart from "../components/HighExpenseChart";
 import History from "../components/History";
+import { useQuery } from "@tanstack/react-query";
+import Filter from "../components/Filter";
+type Expense = {
+  _id: string;
+  date: string;
+  category: string;
+  amount: string;
+  notes: string;
+  paymentMethod: string;
+  userId: string;
+  updatedAt: {};
+  createdAt: {};
+  __v: number;
+};
 
 const Reports: React.FC = () => {
-  const data = [
-    {
-      date: "2025-06-02",
-      amount: "12000",
-      category: "Family",
-      notes: "21212",
-      paymentMethod: "online",
-      userId: "1",
-      createdAt: {
-        $date: "2025-06-02T16:05:04.355Z",
-      },
-      updatedAt: {
-        $date: "2025-06-02T16:05:04.355Z",
-      },
-      __v: 0,
-    },
-    {
-      date: "2025-06-02",
-      amount: "12000",
-      category: "Family",
-      notes: "21212",
-      paymentMethod: "online",
-      userId: "1",
-      createdAt: {
-        $date: "2025-06-02T16:05:04.355Z",
-      },
-      updatedAt: {
-        $date: "2025-06-02T16:05:04.355Z",
-      },
-      __v: 0,
-    },
-  ];
-
+  // const [data, setData] = useState<Expense[]>();
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [isFiltterd, setIsFilttered] = useState(false);
+  const generateYears = () => {
+    const years = [];
+    const currentYear = new Date().getFullYear();
+    for (let year = 2023; year <= currentYear; year++) {
+      years.push(year);
+    }
+    return years;
+  };
+  const getDaysInMonth = (month: number, year: number) => {
+    return new Date(year, month, 0).getDate();
+  };
+  async function fetchData(): Promise<Expense[]> {
+    const response = await fetch(
+      import.meta.env.VITE_API_URL + "/expense/data",
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const json = await response.json();
+    return json;
+  }
+  const {
+    data: fetchedExpense,
+    // isLoading,
+    // error,
+  } = useQuery({
+    queryKey: ["expense"],
+    queryFn: fetchData,
+    staleTime: Infinity,
+  });
+  const data = useMemo(() => {
+    if (!fetchedExpense) return [];
+    return fetchedExpense;
+  }, [fetchedExpense]);
   type GroupedExpense = {
     category: string;
     amount: number;
   };
-  const groupedExpenses: GroupedExpense[] = data
-    .map((item) => ({
+
+  const filteredData = data?.filter((item) => {
+    const expenseDate = new Date(item.date);
+    const matchesMonth = expenseDate.getMonth() + 1 === selectedMonth;
+    const matchesYear = expenseDate.getFullYear() === selectedYear;
+    const matchesDate = selectedDate
+      ? expenseDate.getDate() === Number(selectedDate)
+      : true;
+    const matchesCategory = selectedCategory
+      ? item.category === selectedCategory
+      : true;
+
+    return matchesMonth && matchesYear && matchesDate && matchesCategory;
+  });
+  const expensesToRender = isFiltterd ? filteredData : data;
+  const noData = !expensesToRender || expensesToRender.length === 0;
+  const groupedExpenses: GroupedExpense[] = expensesToRender
+    ?.map((item) => ({
       category: item.category,
       amount: Number(item.amount),
     }))
@@ -65,7 +106,6 @@ const Reports: React.FC = () => {
 
   const expenseNumber = groupedExpenses.map((list) => list.amount);
   const expenseList = groupedExpenses.map((list) => list.category);
-
   return (
     <div className="flex flex-col min-h-screen overflow-hidden bg-white">
       <Nav />
@@ -75,15 +115,35 @@ const Reports: React.FC = () => {
           <h2 className="font-bold text-2xl sm:text-3xl text-[#333] mb-8">
             Reports
           </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="w-full">
-              <BarChart expenses={expenseNumber} list={expenseList} />
-            </div>
-            <div className="w-full">
-              <HighExpenseChart expenses={groupedExpenses} />
+          <div className="mt-6">
+            <div className="p-2 ml-1">
+              <Filter
+                selectedMonth={selectedMonth}
+                setSelectedMonth={setSelectedMonth}
+                selectedYear={selectedYear}
+                setSelectedYear={setSelectedYear}
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+                setIsFilttered={setIsFilttered}
+                generateYears={generateYears}
+                getDaysInMonth={getDaysInMonth}
+              />
             </div>
           </div>
+          {noData ? (
+            <p className="text-gray-400">No expense data available.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 m-6">
+              <div className="w-full">
+                <BarChart expenses={expenseNumber} list={expenseList} />
+              </div>
+              <div className="w-full">
+                <HighExpenseChart expenses={groupedExpenses} />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

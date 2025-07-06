@@ -22,7 +22,7 @@ const LoginPage: React.FC = () => {
         //   withCredentials: true,
         // });
         if (reponse.status === 201) {
-          navigate("/");
+          navigate("/main");
         } else {
           alert("better luck next time!");
         }
