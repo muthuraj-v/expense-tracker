@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-
+import React, { useEffect, useState } from "react";
+import userimag from "../../assets/user.png";
 import { IoIosHome } from "react-icons/io";
 import { RiFileList3Fill } from "react-icons/ri";
 // import { RiDashboardLine } from "react-icons/ri";
@@ -9,14 +9,40 @@ import { MdBarChart } from "react-icons/md";
 import Burger from "./Burger";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FaWallet } from "react-icons/fa";
+import { getUserInfo } from "../../utils/ExpenseData";
+import { useQuery } from "@tanstack/react-query";
+import { User } from "../../types/interface";
 
 const Nav: React.FC = () => {
   const [hamburgerIsOpen, setHamburgerIsOpen] = useState<boolean>(false);
   const toggleHamburger = () => {
     setHamburgerIsOpen(!hamburgerIsOpen);
   };
+  const [userName, setUserName] = useState("");
   const navigate = useNavigate();
   const Location = useLocation();
+  const fetchData = async (): Promise<User> => {
+    try {
+      const user = await getUserInfo();
+      console.log("User info:", user);
+      return user; // ✅ This is required
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      throw error; // ✅ Re-throw so React Query knows it failed
+    }
+  };
+
+  const { data: userData } = useQuery<User>({
+    queryKey: ["user"],
+    queryFn: fetchData,
+    staleTime: Infinity,
+  });
+  useEffect(() => {
+    if (userData) {
+      setUserName(userData.userName.charAt(0).toLocaleUpperCase());
+      setUserName(userData?.avatar || "0");
+    }
+  }, [userData]);
   const isTrue: boolean =
     Location.pathname === "/transaction" ||
     Location.pathname === "/add_transaction";
@@ -44,7 +70,7 @@ const Nav: React.FC = () => {
         </div>
         <div className="hidden sm:hidden md:block  cursor-pointer">
           {/* <img src={Logo} alt="Logo" className="w-[49px] h-[45px]" /> */}
-          <h2 className="flex items-center text-[22px] text-[#222] space-x-2">
+          <h2 className="flex items-center text-[22px] text-[#222] space-x-2 ">
             <FaWallet className="text-purple-600 text-3xl" />
             <span>Expense Tracker</span>
           </h2>
@@ -108,7 +134,17 @@ const Nav: React.FC = () => {
           )}
 
           <div className="w-9 h-9 cursor-grab bg-gray-300 rounded-full flex items-center justify-center text-sm font-semibold text-white">
-            JD
+            {/* {userName ? userName : "JD"} */}
+            {/* <img
+              src={userName ? userName : userimag}
+              alt="hello there"
+              className="rounded-full"
+            /> */}
+            <img
+              src={userName === "" ? userimag : userName}
+              alt="hello there"
+              className="rounded-full"
+            />
           </div>
         </div>
       </div>

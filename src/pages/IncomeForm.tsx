@@ -17,6 +17,25 @@ const IncomeForm: React.FC = () => {
   };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!data.amount) {
+      alert("Please enter the amount");
+      return;
+    }
+
+    if (!data.category) {
+      alert("Please select a category");
+      return;
+    }
+
+    if (!data.notes) {
+      alert("Please enter notes");
+      return;
+    }
+
+    if (!data.paymentMethod) {
+      alert("Please select a payment method");
+      return;
+    }
     try {
       axios
         .post<Income>(import.meta.env.VITE_API_URL + "/income/add", data, {
@@ -34,7 +53,10 @@ const IncomeForm: React.FC = () => {
           }
           data.status === 201 ? alert("Income Added") : alert(data.data);
         })
-        .catch((e) => alert(e));
+        .catch((e) => {
+          console.log(e.response.data.message);
+          alert(e.response.data.message);
+        });
     } catch (error) {
       alert(error);
     }

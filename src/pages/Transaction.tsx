@@ -7,7 +7,10 @@ import Card from "../components/Card";
 import { BsCalendar2Week } from "react-icons/bs";
 import History from "../components/History";
 import { useNavigate } from "react-router-dom";
+import { ExpenseDetails } from "../types/interface";
+import PopUp from "../components/Popup";
 type Expense = {
+  _id: string;
   date: string;
   category: string;
   amount: string;
@@ -47,38 +50,7 @@ const Transaction: React.FC = () => {
     return new Date(year, month, 0).getDate();
   };
 
-  const [data, setData] = useState<Expense[]>([
-    {
-      date: "2025-06-19",
-      amount: "12000",
-      category: "Family",
-      notes: "21212",
-      paymentMethod: "online",
-      userId: "1",
-      createdAt: {
-        $date: "2025-06-02T16:05:04.355Z",
-      },
-      updatedAt: {
-        $date: "2025-06-02T16:05:04.355Z",
-      },
-      __v: 0,
-    },
-    {
-      date: "2025-06-02",
-      amount: "12000",
-      category: "Family",
-      notes: "21212",
-      paymentMethod: "online",
-      userId: "1",
-      createdAt: {
-        $date: "2025-06-02T16:05:04.355Z",
-      },
-      updatedAt: {
-        $date: "2025-06-02T16:05:04.355Z",
-      },
-      __v: 0,
-    },
-  ]);
+  const [data, setData] = useState<Expense[]>();
   const [totalExpense, setTotalExpense] = useState(0);
   console.log(totalExpense);
 
@@ -126,7 +98,7 @@ const Transaction: React.FC = () => {
 
       console.log(fetchedExpense);
 
-      const total = fetchedExpense.reduce((acc: number, curr: Expense) => {
+      const total = fetchedExpense?.reduce((acc: number, curr: Expense) => {
         const amount = parseFloat(curr.amount);
         return isNaN(amount) ? acc : acc + amount;
       }, 0);
@@ -144,8 +116,8 @@ const Transaction: React.FC = () => {
   // console.log(todayDate);
   const currentDate = new Date().toISOString().split("T")[0];
 
-  const toatalToday = data.filter((item) => item.date === currentDate);
-  const todayExpense = toatalToday.reduce((acc: number, curr: Expense) => {
+  const toatalToday = data?.filter((item) => item.date === currentDate);
+  const todayExpense = toatalToday?.reduce((acc: number, curr: Expense) => {
     const amount = parseFloat(curr.amount);
     return isNaN(amount) ? acc : acc + amount;
   }, 0);
@@ -175,6 +147,106 @@ const Transaction: React.FC = () => {
     (acc, current) => acc + parseInt(current.amount),
     0
   );
+  const handleDelete = async (expenseToDelete: ExpenseDetails) => {
+    try {
+      // Replace with your real API endpoint:
+      const response = await fetch(
+        import.meta.env.VITE_API_URL + `/expense/delete/${expenseToDelete._id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to delete expense");
+      }
+
+      setData((prev) =>
+        prev?.filter((expense) => expense._id !== expenseToDelete._id)
+      );
+      alert("hello there!");
+    } catch (error) {
+      console.error("Error deleting expense:", error);
+      alert("Failed to delete expense. Please try again.");
+    }
+  };
+
+  const [formData, setFormData] = useState({
+    date: "",
+    amount: "",
+    category: "",
+    paymentMethod: "",
+    notes: "",
+    userId: "",
+    _id: "",
+  });
+  const [openEditPopUp, setOpenEditPopUp] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<ExpenseDetails | null>(
+    null
+  );
+
+  const parseDate = (dateStr: string) => {
+    return new Date(dateStr).toISOString().split("T")[0];
+  };
+  const handleEdit = (expense: ExpenseDetails) => {
+    setEditingExpense(expense);
+    setFormData({
+      date: parseDate(expense.date),
+      amount: expense.amount,
+      userId: expense.userId,
+      category: expense.category,
+      paymentMethod: expense.paymentMethod,
+      notes: expense.notes,
+      _id: expense._id,
+    });
+    setOpenEditPopUp(true);
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.id]: e.target.value,
+    }));
+  };
+
+  const handleUpdate = async (updatedExpense: ExpenseDetails) => {
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_API_URL + `/expense/update/${updatedExpense._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(updatedExpense),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update expense");
+      }
+
+      const result = await response.json();
+
+      setData((prev) =>
+        prev?.map((expense) =>
+          expense._id === updatedExpense._id ? result.data : expense
+        )
+      );
+
+      alert("Expense updated successfully!");
+    } catch (error) {
+      console.error("Error updating expense:", error);
+      alert("Failed to update expense. Please try again.");
+    }
+  };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleUpdate(formData);
+  };
   return (
     <>
       <div className="flex flex-col overflow-hidden ">
@@ -199,17 +271,17 @@ const Transaction: React.FC = () => {
             <div className="mt-5 flex flex-col sm:flex-col md:flex-col lg:flex-row gap-7">
               <Card
                 name={"Today"}
-                amount={todayExpense.toString() || "0"}
+                amount={todayExpense?.toString() || "0"}
                 nav={<MdOutlineToday />}
               />
               <Card
                 name={"This Week"}
-                amount={totalCurrentWeekSpend.toString() || "0"}
+                amount={totalCurrentWeekSpend?.toString() || "0"}
                 nav={<BsCalendar2Week />}
               />
               <Card
                 name={"Total This Month"}
-                amount={totalCurrentMonthSpend.toString() || "0"}
+                amount={totalCurrentMonthSpend?.toString() || "0"}
                 nav={<MdOutlineCalendarMonth />}
               />
             </div>
@@ -340,18 +412,30 @@ const Transaction: React.FC = () => {
                 {noData ? (
                   <p className="text-gray-400">No expense data available.</p>
                 ) : (
-                  expensesToRender.map((expense, index) => (
-                    <DetailsCard
-                      key={index}
-                      expense={{ ...expense, date: parseDate(expense.date) }}
-                    />
-                  ))
+                  expensesToRender
+                    .slice()
+                    .reverse()
+                    .map((expense, index) => (
+                      <DetailsCard
+                        key={index}
+                        onDelete={handleDelete}
+                        onEdit={handleEdit}
+                        expense={{ ...expense, date: parseDate(expense.date) }}
+                      />
+                    ))
                 )}
               </div>
             </div>
           </div>
         </div>
       </div>
+      <PopUp
+        openPopUp={openEditPopUp}
+        closePopUp={() => setOpenEditPopUp(false)}
+        data={formData}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+      />
     </>
   );
 };

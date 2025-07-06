@@ -1,33 +1,34 @@
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import React from "react";
 import { FaWallet } from "react-icons/fa";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>();
+
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
         const googleAccessToken = tokenResponse.access_token;
 
-        await axios.post(
+        const reponse = await axios.post(
           "http://localhost:2000/api/google-login",
           { access_token: googleAccessToken },
           { withCredentials: true }
         );
 
-        const res = await axios.get("http://localhost:2000/api/user", {
-          withCredentials: true,
-        });
-        console.log(res);
-
-        setUser(res.data.user);
+        // await axios.get("http://localhost:2000/api/user", {
+        //   withCredentials: true,
+        // });
+        if (reponse.status === 201) {
+          navigate("/");
+        } else {
+          alert("better luck next time!");
+        }
         // console.log(res.data.user);
 
         // alert("Login successful!");
-        navigate("/");
       } catch (error) {
         console.error("Login or fetch failed:", error);
         alert("Login failed. Please try again.");

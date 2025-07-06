@@ -5,7 +5,11 @@ import { BsGraphUpArrow, BsGraphDownArrow } from "react-icons/bs";
 import HomeDetailsCard from "../components/HomeDetailsCard";
 import Histroy from "../components/History";
 import { useQuery } from "@tanstack/react-query";
-import { ExpenseDetails as Expense, TotalExpense } from "../types/interface";
+import {
+  ExpenseDetails as Expense,
+  ExpenseDetails,
+  TotalExpense,
+} from "../types/interface";
 const parseDate = (dateStr: string): string => {
   const iso = new Date(dateStr);
   if (!isNaN(iso.getTime())) return iso.toString();
@@ -18,7 +22,11 @@ const parseDate = (dateStr: string): string => {
 const Home: React.FC = () => {
   const [data, setData] = useState<Expense[]>([]);
   const [totalExpense, setTotalExpense] = useState(0);
-
+  const [totalIncome, setTotalIncome] = useState(0);
+  const getDate = () => {
+    const date = new Date();
+    return `${date.getFullYear()}-${date.getMonth() + 1}`;
+  };
   async function fetchData(): Promise<Expense[]> {
     const response = await fetch(
       import.meta.env.VITE_API_URL + "/expense/data",
@@ -61,25 +69,36 @@ const Home: React.FC = () => {
     queryFn: totalExpenseFetch,
     staleTime: 100000,
   });
+  const currentMonth = new Date().getMonth();
   useEffect(() => {
     if (fetchedExpense) {
-      setData(fetchedExpense); // Set the fetched data as an array
+      const thisMonthData = fetchedExpense?.filter((value) => {
+        const month = new Date(value.date).getMonth();
+        return month === currentMonth;
+      });
+      setData(thisMonthData);
 
-      console.log(fetchedExpense);
+      // const total = fetchedExpense.reduce((acc: number, curr: Expense) => {
+      //   const amount = parseFloat(curr.amount);
+      //   return isNaN(amount) ? acc : acc + amount;
+      // }, 0);
 
-      const total = fetchedExpense.reduce((acc: number, curr: Expense) => {
-        const amount = parseFloat(curr.amount);
-        return isNaN(amount) ? acc : acc + amount;
-      }, 0);
-
-      setTotalExpense(total);
+      //
     }
   }, [fetchedExpense]);
+  const month = getDate();
   useEffect(() => {
     if (total) {
-      console.log(total);
+      const val = total.find((value) => month === value?.month);
+
+      const to = val?.totalExpense ?? 0;
+      const income = val?.totalIncome ?? 0;
+
+      setTotalExpense(to);
+      setTotalIncome(income);
     }
   }, [total]);
+
   return (
     <>
       <div className="flex flex-col overflow-hidden">
@@ -91,7 +110,7 @@ const Home: React.FC = () => {
               ExpenseTracker
             </h2> */}
             <p className="text-2xl font-bold mt-1">Financial Overview</p>
-            <div className="mt-4 p-6 bg-purple-50 rounded-xl shadow-md">
+            <div className="mt-4 p-6 bg-purple-50 rounded-xl shadow-md animate-fade animate-once animate-ease-out animate-normal animate-fill-forwards">
               <div className="flex items-center space-x-4">
                 <div className="bg-purple-100 p-3 rounded-full">
                   <span
@@ -105,13 +124,17 @@ const Home: React.FC = () => {
                 <div>
                   <p className="text-md font-medium">Total Balance</p>
                   <p className="text-blue-600 font-bold text-2xl">
-                    &#x20B9;4,285.75
+                    &#x20B9;
+                    {(totalIncome &&
+                      totalExpense &&
+                      totalIncome - totalExpense) ||
+                      "0"}
                   </p>
                 </div>
               </div>
             </div>
             <div className="mt-4 flex flex-col sm:flex-row gap-4">
-              <div className="flex-1 p-6 bg-purple-50 rounded-xl shadow-md">
+              <div className="flex-1 p-6 bg-purple-50 rounded-xl shadow-md animate-fade animate-once animate-ease-out animate-normal animate-fill-forwards">
                 <div className="flex items-center space-x-4">
                   <div className="bg-green-100 p-3 rounded-full">
                     <span
@@ -125,13 +148,13 @@ const Home: React.FC = () => {
                   <div>
                     <p className="text-md font-medium">Income</p>
                     <p className="text-green-600 font-bold text-xl">
-                      &#x20B9;2,850.00
+                      &#x20B9; {(totalIncome && totalIncome.toFixed(2)) || "0"}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="flex-1 p-6 bg-purple-50 rounded-xl shadow-md">
+              <div className="flex-1 p-6 bg-purple-50 rounded-xl shadow-md animate-fade animate-once animate-ease-out animate-normal animate-fill-forwards">
                 <div className="flex items-center space-x-4">
                   <div className="bg-red-100 p-3 rounded-full">
                     <span
@@ -146,7 +169,7 @@ const Home: React.FC = () => {
                     <p className="text-md font-medium">Expenses</p>
                     <p className="text-red-500 font-bold text-xl">
                       &#x20B9;
-                      {(totalExpense && totalExpense.toFixed(2)) || "1,245.50"}
+                      {(totalExpense && totalExpense.toFixed(2)) || "0"}
                     </p>
                   </div>
                 </div>
@@ -165,7 +188,9 @@ const Home: React.FC = () => {
                   />
                 ))
               ) : (
-                <p className="text-gray-400">No expense data available.</p>
+                <p className="text-gray-400">
+                  No Recent expense data available.
+                </p>
               )}
             </div>
           </div>

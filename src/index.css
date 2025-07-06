@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Anton+SC&family=Cinzel:wght@400..900&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Manrope:wght@200..800&family=Mona+Sans:ital,wght@0,200..900;1,200..900&family=Monoton&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Overpass&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
+@import "tailwindcss-animated";
 @layer components {
   .card {
     @apply flex justify-center items-center;

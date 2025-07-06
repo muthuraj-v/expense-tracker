@@ -42,7 +42,7 @@ const HomeDetailsCard: React.FC<Props> = ({ expense }) => {
   const icon = categoryIcons[category] || <FaQuestionCircle />;
 
   return (
-    <div className="max-w-full flex ">
+    <div className="max-w-full flex animate-fade-up animate-once animate-ease-in-out animate-normal animate-fill-forwards">
       <div className="flex space-x-4 m-2">
         <div className="p-3 rounded-xl bg-red-100 ">
           <span className="text-blue-700 text-center text-2xl">{icon}</span>

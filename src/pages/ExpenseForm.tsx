@@ -20,14 +20,32 @@ const ExpenseForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!data.amount) {
+      alert("Please enter the amount");
+      return;
+    }
 
+    if (!data.category) {
+      alert("Please select a category");
+      return;
+    }
+
+    if (!data.notes) {
+      alert("Please enter notes");
+      return;
+    }
+
+    if (!data.paymentMethod) {
+      alert("Please select a payment method");
+      return;
+    }
     try {
       axios
         .post<Expense>(import.meta.env.VITE_API_URL + "/expense/add", data, {
           withCredentials: true,
         })
         .then((data) => {
-          if (data.status === 200) {
+          if (data.status === 201) {
             setData({
               date: "",
               amount: "",
@@ -36,11 +54,14 @@ const ExpenseForm: React.FC = () => {
               notes: "",
             });
           }
-          data.status === 200
+          data.status === 201
             ? alert("Expense Added")
             : alert("failed process");
         })
-        .catch((e) => alert(e));
+        .catch((e) => {
+          console.log(e.response.data.message);
+          alert(e.response.data.message);
+        });
       // const response = axios.post<Expense>(
       //   "http://localhost:2000/api/expense/add",
       //   data
@@ -50,7 +71,9 @@ const ExpenseForm: React.FC = () => {
       //   data.status === 200 ? alert("Expense Added") : alert("failed")
       // );
     } catch (error) {
-      alert(error);
+      console.log(error);
+
+      alert("failed process");
     }
   };
 
