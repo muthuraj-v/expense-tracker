@@ -40,8 +40,10 @@ const Nav: React.FC = () => {
   });
 
   const userAvatar = useMemo(() => {
-    const avatar = userData?.avatar;
-    return avatar && avatar.trim() !== "" ? avatar : userimag;
+    if (!userData?.avatar || userData.avatar.trim() === "") {
+      return userimag;
+    }
+    return userData.avatar;
   }, [userData]);
   console.log(userAvatar);
 
@@ -198,9 +200,9 @@ const Nav: React.FC = () => {
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
               <img
-                src={userAvatar || userimag}
-                alt={userData?.userName || "User"}
-                title={userData?.userName || "User"}
+                src={userAvatar}
+                alt={userData?.userName}
+                onError={(e) => (e.currentTarget.src = userimag)}
                 className="rounded-full w-9 h-9 object-cover"
               />
             </div>
