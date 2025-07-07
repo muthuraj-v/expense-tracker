@@ -98,15 +98,27 @@ The backend is built using Node.js and Express. It provides RESTful endpoints to
 | `*`                | Redirects to `/`     | Catch-all route                    |
 
 
-# 1. Clone the repository
+## 1. Clone the repository
 git clone https://github.com/muthuraj-v/expense-tracker.git
 
-# 2. Navigate to the project directory
+## 2. Navigate to the project directory
 cd expense-tracker
 
-# 3. Install dependencies
+## 3. Install dependencies
 npm install
 
-# 4. Start the React app
+## 4. Start the React app
 npm run dev
+
+
+### To-Do / Future Enhancements
+ - Export reports as PDF/CSV
+
+ - Recurring transactions
+
+ - add pages for income and saving wiht curd fucntions
+
+ - Dark mode toggle
+
+
 
