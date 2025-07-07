@@ -92,7 +92,7 @@ const Home: React.FC = () => {
       const val = total.find((value) => month === value?.month);
 
       const to = val?.totalExpense ?? 0;
-      const income = val?.totalIncome ?? 0;
+      const income = val?.totalIncome1 ?? 0;
 
       setTotalExpense(to);
       setTotalIncome(income);

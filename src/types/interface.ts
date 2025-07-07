@@ -26,6 +26,7 @@ export interface TotalExpense {
   month: string;
   userId: {};
   totalIncome: number;
+  totalIncome1: number;
   totalExpense: number;
 }
 export interface User {
@@ -40,4 +41,13 @@ export interface User {
 }
 export interface UserApiResponse {
   user: User;
+}
+export interface Saving {
+  _id: string;
+  date: string;
+  amount: string;
+  category: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
 }

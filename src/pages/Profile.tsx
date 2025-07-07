@@ -2,9 +2,9 @@ import React, { useMemo } from "react";
 import History from "../components/History";
 import Nav from "../components/Nav/Nav";
 import { useQuery } from "@tanstack/react-query";
-import { User } from "../types/interface";
-import userPlaceholder from "../assets/user.png"; // update path as needed
-import { getUserInfo } from "../utils/ExpenseData";
+import { Saving, User } from "../types/interface";
+import userPlaceholder from "../assets/user.png";
+import { getUserInfo, getUserSavings } from "../utils/ExpenseData";
 export const Profile: React.FC = () => {
   const {
     data: userData,
@@ -39,7 +39,14 @@ export const Profile: React.FC = () => {
         Failed to load profile.
       </div>
     );
-
+  const {
+    data: userSavings,
+    isLoading: savingsLoading,
+    error: savingsError,
+  } = useQuery<Saving[]>({
+    queryKey: ["savings"],
+    queryFn: () => getUserSavings(),
+  });
   return (
     <div className="flex flex-col min-h-screen overflow-hidden">
       <Nav />
@@ -66,6 +73,50 @@ export const Profile: React.FC = () => {
               Joined on {formattedDate}
             </p>
           </div>
+        </div>
+        <div className="mt-8">
+          <h3 className="text-xl font-bold text-gray-800 mb-4">Savings</h3>
+
+          {savingsLoading ? (
+            <p className="text-gray-500">Loading savings...</p>
+          ) : savingsError ? (
+            <p className="text-red-500">Failed to load savings</p>
+          ) : userSavings?.length === 0 ? (
+            <p className="text-gray-600">No savings found.</p>
+          ) : (
+            <>
+              <div className="mb-4">
+                <p className="text-lg font-semibold text-green-600">
+                  Total Savings: ₹
+                  {userSavings
+                    ?.reduce((acc, item) => acc + Number(item.amount || 0), 0)
+                    .toLocaleString()}
+                </p>
+              </div>
+
+              <ul className="space-y-4">
+                {userSavings?.slice(0, 4).map((saving) => (
+                  <li
+                    key={saving._id}
+                    className="border border-gray-200 p-4 rounded-md shadow-sm bg-gray-50"
+                  >
+                    <p className="font-semibold text-gray-700">
+                      ₹{Number(saving.amount).toLocaleString()}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Category: {saving.category}
+                    </p>
+                    <p className="text-sm text-gray-500">Date: {saving.date}</p>
+                    {saving.notes && (
+                      <p className="text-sm text-gray-400">
+                        Notes: {saving.notes}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </div>
       </div>
     </div>

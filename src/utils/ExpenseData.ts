@@ -1,4 +1,4 @@
-import { Expense, User, UserApiResponse } from "../types/interface";
+import { Expense, Saving, User, UserApiResponse } from "../types/interface";
 import axios from "axios";
 export async function fetchData(): Promise<Expense[]> {
   const response = await fetch(import.meta.env.VITE_API_URL + "/expense/data", {
@@ -36,6 +36,23 @@ export const logout = async () => {
     return await response.json();
   } catch (error) {
     console.error("Logout error:", error);
+    throw error;
+  }
+};
+export const getUserSavings = async (): Promise<Saving[]> => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/save/data`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch savings");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Fetch savings error:", error);
     throw error;
   }
 };

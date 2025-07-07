@@ -1,7 +1,7 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getUserInfo } from "./ExpenseData"; // ✅ check path
+import { getUserInfo } from "./ExpenseData";
 
 const RedirectFallback: React.FC = () => {
   const { data, isLoading, isError } = useQuery({

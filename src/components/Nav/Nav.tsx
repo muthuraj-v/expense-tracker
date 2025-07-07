@@ -1,11 +1,11 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import userimag from "../../assets/user.png";
 import { IoIosHome } from "react-icons/io";
 import { RiFileList3Fill } from "react-icons/ri";
-// import { RiDashboardLine } from "react-icons/ri";
+
 import { GiTakeMyMoney } from "react-icons/gi";
 import { MdBarChart } from "react-icons/md";
-// import { IoSettings } from "react-icons/io5";
+
 import Burger from "./Burger";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FaWallet } from "react-icons/fa";
@@ -18,7 +18,8 @@ const Nav: React.FC = () => {
   const toggleHamburger = () => {
     setHamburgerIsOpen(!hamburgerIsOpen);
   };
-  const [isOpen, setIsOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const Location = useLocation();
   const fetchData = async (): Promise<User> => {
@@ -58,20 +59,33 @@ const Nav: React.FC = () => {
       link: "/transaction",
     },
     { id: 3, text: "Reports", icon: <MdBarChart />, link: "/reports" },
-    // { id: 4, text: "Settings", icon: <IoSettings />, link: "/" },
   ];
 
   const handleLogout = async () => {
     try {
       await logout();
-      // Clear any local state or storage if needed
-      // localStorage.clear();
 
-      navigate("/login"); // Redirect to login page
+      setDropdownOpen(false);
+      navigate("/login");
     } catch (err) {
       alert("Failed to logout");
     }
   };
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
@@ -135,6 +149,22 @@ const Nav: React.FC = () => {
                 </NavLink>
               </li>
             ))}
+
+            <li>
+              <NavLink
+                to={"/profile"}
+                className={`block ${
+                  hamburgerIsOpen
+                    ? "pt-5 pb-5 text-center w-full border-b border-[#ccc] text-white"
+                    : "text-[18px] hidden sm:hidden md:hidden lg:hidden"
+                }`}
+              >
+                <span className="text-[18px] hidden sm:hidden md:hidden lg:block">
+                  {"ss"}
+                </span>
+                {"Profile"}
+              </NavLink>
+            </li>
             <li>
               <div
                 onClick={handleLogout}
@@ -162,19 +192,44 @@ const Nav: React.FC = () => {
             </button>
           )}
 
-          <div className="w-9 h-9 cursor-grab bg-gray-300 rounded-full flex items-center justify-center text-sm font-semibold text-white">
-            {/* {userName ? userName : "JD"} */}
-            {/* <img
-              src={userName ? userName : userimag}
-              alt="hello there"
-              className="rounded-full"
-            /> */}
-            <img
-              src={userAvatar || userimag}
-              alt={userData?.userName || "hello there"}
-              title={userData?.userName || "hello there"}
-              className="rounded-full"
-            />
+          <div className="relative" ref={dropdownRef}>
+            <div
+              className="w-9 h-9 cursor-pointer bg-gray-300 rounded-full flex items-center justify-center text-sm font-semibold text-white"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+              <img
+                src={userAvatar || userimag}
+                alt={userData?.userName || "User"}
+                title={userData?.userName || "User"}
+                className="rounded-full w-9 h-9 object-cover"
+              />
+            </div>
+
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                <ul className="py-1 text-sm text-gray-700">
+                  <li>
+                    <a
+                      href="/profile"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      Profile
+                    </a>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                      }}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                    >
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       </div>
