@@ -1,4 +1,5 @@
 import { Expense, Saving, User, UserApiResponse } from "../types/interface";
+
 import axios from "axios";
 export async function fetchData(): Promise<Expense[]> {
   const response = await fetch(import.meta.env.VITE_API_URL + "/expense/data", {
@@ -47,12 +48,13 @@ export const getUserSavings = async (): Promise<Saving[]> => {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch savings");
+      return [];
     }
 
-    return await response.json();
+    return (await response.json()) || [];
   } catch (error) {
     console.error("Fetch savings error:", error);
     throw error;
   }
 };
+// const navigate = useNavigate();

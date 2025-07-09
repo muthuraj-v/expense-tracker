@@ -1,19 +1,21 @@
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import React from "react";
+import React, { useEffect } from "react";
 import { FaWallet } from "react-icons/fa";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-
+  useEffect(() => {
+    document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+  }, []);
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
         const googleAccessToken = tokenResponse.access_token;
 
         const reponse = await axios.post(
-          "http://localhost:2000/api/google-login",
+          import.meta.env.VITE_API_URL + "/google-login",
           { access_token: googleAccessToken },
           { withCredentials: true }
         );
@@ -22,6 +24,9 @@ const LoginPage: React.FC = () => {
         //   withCredentials: true,
         // });
         if (reponse.status === 201) {
+          console.log(reponse.status);
+
+          setInterval(() => {}, 1000);
           navigate("/main");
         } else {
           alert("better luck next time!");

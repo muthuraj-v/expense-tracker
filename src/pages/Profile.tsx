@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Saving, User } from "../types/interface";
 import userPlaceholder from "../assets/user.png";
 import { getUserInfo, getUserSavings } from "../utils/ExpenseData";
-export const Profile: React.FC = () => {
+const Profile: React.FC = () => {
   const {
     data: userData,
     isLoading,
@@ -13,6 +13,16 @@ export const Profile: React.FC = () => {
   } = useQuery<User>({
     queryKey: ["user"],
     queryFn: getUserInfo,
+    staleTime: Infinity,
+  });
+
+  const {
+    data: userSavings,
+    isLoading: savingsLoading,
+    error: savingsError,
+  } = useQuery<Saving[]>({
+    queryKey: ["savings"],
+    queryFn: getUserSavings,
     staleTime: Infinity,
   });
 
@@ -39,14 +49,6 @@ export const Profile: React.FC = () => {
         Failed to load profile.
       </div>
     );
-  const {
-    data: userSavings,
-    isLoading: savingsLoading,
-    error: savingsError,
-  } = useQuery<Saving[]>({
-    queryKey: ["savings"],
-    queryFn: () => getUserSavings(),
-  });
   return (
     <div className="flex flex-col min-h-screen overflow-hidden">
       <Nav />
@@ -122,3 +124,4 @@ export const Profile: React.FC = () => {
     </div>
   );
 };
+export default Profile;
