@@ -5,11 +5,7 @@ import { BsGraphUpArrow, BsGraphDownArrow } from "react-icons/bs";
 import HomeDetailsCard from "../components/HomeDetailsCard";
 import Histroy from "../components/History";
 import { useQuery } from "@tanstack/react-query";
-import {
-  ExpenseDetails as Expense,
-  ExpenseDetails,
-  TotalExpense,
-} from "../types/interface";
+import { ExpenseDetails as Expense, TotalExpense } from "../types/interface";
 const parseDate = (dateStr: string): string => {
   const iso = new Date(dateStr);
   if (!isNaN(iso.getTime())) return iso.toString();

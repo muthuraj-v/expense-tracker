@@ -199,6 +199,8 @@ const Transaction: React.FC = () => {
     return new Date(dateStr).toISOString().split("T")[0];
   };
   const handleEdit = (expense: ExpenseDetails) => {
+    console.log(editingExpense);
+
     setEditingExpense(expense);
     setFormData({
       date: parseDate(expense.date),
