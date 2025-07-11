@@ -6,10 +6,6 @@ import { FaWallet } from "react-icons/fa";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  // useEffect(() => {
-  //   // document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-  //   localStorage.removeItem("auth");
-  // }, []);
 
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -26,7 +22,6 @@ const LoginPage: React.FC = () => {
         //   withCredentials: true,
         // });
         if (reponse.status === 201) {
-          console.log(reponse.status);
           localStorage.setItem("auth", "true");
           navigate("/main");
         } else {

@@ -277,13 +277,24 @@ const Transaction: React.FC = () => {
           <History />
           <div className="pr-7 absolute z-1000  right-0 text-black">
             <button
-              className="px-4 py-1 bg-blue-500 hover:bg-blue-600 text-white text-sm cursor-pointer rounded-xl shadow-md transition duration-200 ease-in-out"
+              className="
+    px-3 py-1 
+    sm:px-4 sm:py-2
+    bg-blue-500 hover:bg-blue-600 
+    text-xs sm:text-sm 
+    text-white 
+    cursor-pointer 
+    rounded-xl 
+    shadow-md 
+    transition duration-200 ease-in-out
+    mb-4 sm:mb-0
+  "
               onClick={() => navigate("/add_transaction")}
             >
               Add Transaction
             </button>
           </div>
-          <div className="p-4 sm:p-5 max-w-8xl">
+          <div className="p-4 sm:p-5 max-w-8xl mx-2 sm:mt-6 md:mt-10">
             <h2 className="font-bold text-2xl sm:text-3xl text-[#333] ">
               Your Transactions
             </h2>

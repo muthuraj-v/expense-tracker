@@ -14,6 +14,7 @@ const Profile: React.FC = () => {
     queryKey: ["user"],
     queryFn: getUserInfo,
     staleTime: Infinity,
+    retry: false,
   });
 
   const {

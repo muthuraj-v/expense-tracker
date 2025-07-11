@@ -37,6 +37,7 @@ const Nav: React.FC = () => {
     queryKey: ["user"],
     queryFn: fetchData,
     staleTime: Infinity,
+    retry: false,
   });
 
   const userAvatar = useMemo(() => {
@@ -151,7 +152,21 @@ const Nav: React.FC = () => {
                 </NavLink>
               </li>
             ))}
-
+            <li>
+              <NavLink
+                to={"/add_transaction"}
+                className={`block ${
+                  hamburgerIsOpen
+                    ? "pt-5 pb-5 text-center w-full border-b border-[#ccc] text-white"
+                    : "text-[18px] hidden sm:hidden md:hidden lg:hidden"
+                }`}
+              >
+                <span className="text-[18px] hidden sm:hidden md:hidden lg:block">
+                  {"ss"}
+                </span>
+                {"Add Transaction"}
+              </NavLink>
+            </li>
             <li>
               <NavLink
                 to={"/profile"}
