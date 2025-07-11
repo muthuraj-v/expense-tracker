@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Cookies from "js-cookie";
 import "./App.css";
 import Home from "./pages/Home";
 import Transaction from "./pages/Transaction";
@@ -8,17 +7,13 @@ import Reports from "./pages/Reports";
 import AddTransaction from "./pages/AddTransaction";
 import LoginPage from "./pages/LoginPage";
 import Profile from "./pages/Profile";
-
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const token = Cookies.get("jwt");
-  return token ? <>{children}</> : <Navigate to="/" replace />;
-};
+import ProtectedRoute from "./components/ProtectedRoute";
+import AuthChecker from "./components/AuthChecker";
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
+      <AuthChecker />
       <Routes>
         <Route path="/" element={<LoginPage />} />
 

@@ -66,7 +66,7 @@ const Nav: React.FC = () => {
   const handleLogout = async () => {
     try {
       await logout();
-
+      localStorage.clear();
       setDropdownOpen(false);
       navigate("/login");
     } catch (err) {
